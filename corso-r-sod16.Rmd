@@ -1,0 +1,12 @@
+---
+title: "Introduzione al trattamento e analisi dei geodati con R"
+author: "Andrea Zedda, Michele Ferretti"
+date: "8 maggio 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
