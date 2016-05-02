@@ -5,8 +5,28 @@ date: "8 maggio 2016"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+
+library(rgdal)
+
+```
+
+
+
+
+```{r}
+  regs  <- readOGR("regioni", layer="Reg2015_WGS84_g")
+  provs <- readOGR("province", layer="CMProv2015_WGS84_g")
+  coms  <- readOGR("comuni", layer="Com2015_WGS84_g")
+
+```
+
+```{r}
+head(coms@data)
+```
+
+```{r}
+  table(coms$COD_REG)
 ```
 
 
