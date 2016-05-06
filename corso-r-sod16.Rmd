@@ -28,6 +28,7 @@ Oltre a gli shapefile, e' possibile caricare anche altri formati geografici, ad 
 
 ```{r}
 
+
 ```
 
 Visualizzare i spatialdataframe e' semplice utilizzando le fuznioni base di R
@@ -41,12 +42,34 @@ plot(provs, col='red')
 ```
 
 
-Inoltre e' possibile ricavare uno spatialdataframe da un semplice csv contentente le informazioni sulle coordinate geografiche
+Inoltre e' possibile ricavare uno spatialdataframe (spatialpointsdataframe) da un semplice csv contentente le informazioni sulle coordinate geografiche
 ```{r}
 #apro il csv
+meteo.stations <- read.csv('stazioni.csv', stringsAsFactors = F)
 #trasformo il csv
-spdf <- coordinates(df) <- ~lon+lat
+coordinates(meteo.stations) <- ~lon+lat
+plot(meteo.stations, pch=20, col='steelblue')
+
+
+benzinai <- read.csv('benzinai.csv', stringsAsFactors = F)
+benzinai$Latitudine<- as.numeric(benzinai$Latitudine)
+benzinai$Longitudine<- as.numeric(benzinai$Longitudine)
+benzinai <- benzinai[,c(1:10)]
+benzinai$Latitudine<- as.numeric(benzinai$Latitudine)
+benzinai$Longitudine<- as.numeric(benzinai$Longitudine)
+benzinai<- benzinai[complete.cases(benzinai),]
+#trasformo il csv
+coordinates(benzinai) <- ~Longitudine+Latitudine
+plot(meteo.stations, pch=20, col='steelblue')
+
 #definisco la proiezione
+
+
+crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")  # geographical, datum WGS84
+proj4string(meteo.stations) <- crs.geo  # define projection system of our data
+proj4string(regs) <- crs.geo  # define projection system of our data
+
+summary(coms.coord)
 
 
 ```
