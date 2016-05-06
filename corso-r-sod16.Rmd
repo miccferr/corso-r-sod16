@@ -5,14 +5,14 @@ date: "8 maggio 2016"
 output: html_document
 ---
 
+In  R ci sono diverse librerie che consentono il trattamento di geodati, uno dei piu' interessanti e' rgdal che ci permette di utilizzare le potenzialita' di gdal in R.
 ```{r}
-
+#install.packages('rgdal)
 library(rgdal)
 
 ```
 
-
-
+Per caricare i file si utilizza la funzione readOGR
 
 ```{r}
   regs  <- readOGR("regioni", layer="Reg2015_WGS84_g")
@@ -21,12 +21,85 @@ library(rgdal)
 
 ```
 
+Gli oggetti caricati diventano degli SpatialPolygonDataFrame, cioe' delle classi che ...
+
+
+Oltre a gli shapefile, e' possibile caricare anche altri formati geografici, ad esempio il geojson
+
+```{r}
+
+```
+
+Visualizzare i spatialdataframe e' semplice utilizzando le fuznioni base di R
+
+```{r}
+
+plot(coms)
+plot(regs)
+plot(provs, col='red')
+
+```
+
+
+Inoltre e' possibile ricavare uno spatialdataframe da un semplice csv contentente le informazioni sulle coordinate geografiche
+```{r}
+#apro il csv
+#trasformo il csv
+spdf <- coordinates(df) <- ~lon+lat
+#definisco la proiezione
+
+
+```
+
+
+lo spatial data frame ha uno slot dal quale e' possibile accedere ai dati delle eventuali variabili relative alle geometrie
+
 ```{r}
 head(coms@data)
 ```
 
+A partire da questo slot e' possibile quindi trattare i dati come se stessimo utilizzando un normale data frame e quindi produrre tutte le statistiche che vogliamo
+
 ```{r}
   table(coms$COD_REG)
+```
+
+Sempre utilizzando lo slot @data e' possibile anche filtrare i dati
+
+```{r}
+coms.sard <- subset(coms, COD_REG==20) 
+plot(coms.sard,  add=T, col=colors(), lwd=0.1)
+
+```
+
+plot(regs)
+plot(coms.sard,  add=T, col=topo.colors(330), lwd=0.1)
+
+
+fare un merge tra data frame
+```{r}
+
+```
+
+fare un merge tra spdf e df
+```{r}
+
+```
+
+
+
+
+
+scrivere un file
+```{r}
+writeOGR(ss4,"foo.geojson", layer="nomelayer",driver="GeoJSON",check_exists = FALSE)
+
+```
+
+per controllare in quali formati e' possibile salvare, e soprattutto cosa scrivere nell'opzione diriver
+
+```{r}
+ogrDrivers()
 ```
 
 
