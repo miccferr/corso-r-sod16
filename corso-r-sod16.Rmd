@@ -16,16 +16,14 @@ library(rgdal)
 Per caricare i file si utilizza la funzione readOGR
 
 ```{r}
-  regs  <- readOGR("regioni", layer="regioni")
+  regs  <- readOGR("data/regioni", layer="regioni")
 ```
 
-Gli oggetti caricati diventano degli SpatialPolygonDataFrame, cioe' delle classi che ...
-
-
-Oltre a gli shapefile, e' possibile caricare anche altri formati geografici, ad esempio il geojson
+Gli oggetti caricati diventano degli SpatialPolygonDataFrame.
+Oltre a gli shapefile, e' possibile caricare anche altri formati geografici, ad esempio il geojson:
 
 ```{r}
-piattaforme <- readOGR("piattaforme.geojson", layer = "OGRGeoJSON")
+piattaforme <- readOGR("data/piattaforme.geojson", layer = "OGRGeoJSON")
 
 ```
 
@@ -38,11 +36,11 @@ plot(provs, col='red')
 
 ```
 
+Inoltre e' possibile ricavare uno *spatialdataframe* (spatialpointsdataframe) da un semplice csv contentente le informazioni sulle coordinate geografiche.
 
-Inoltre e' possibile ricavare uno spatialdataframe (spatialpointsdataframe) da un semplice csv contentente le informazioni sulle coordinate geografiche
 ```{r}
 #apro il csv
-meteo.stations <- read.csv('stazioni.csv', stringsAsFactors = F)
+meteo.stations <- read.csv('data/stazioni.csv', stringsAsFactors = F)
 #trasformo il csv
 coordinates(meteo.stations) <- ~lon+lat
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")  # geographical, datum WGS84
@@ -50,7 +48,7 @@ spTransform(meteo.stations, crs.geo)
 plot(meteo.stations, add=T, pch=20, col='steelblue')
 
 
-/pagebreak 
+
 
 meteo.stations2<- meteo.stations@data[complete.cases(meteo.stations@data),]
 
@@ -60,7 +58,7 @@ meteo.stations2<- meteo.stations@data[complete.cases(meteo.stations@data),]
 
 proj4string(meteo.stations) <- crs.geo  # define projection system of our data
 proj4string(regs) <- crs.geo  # define projection system of our data
-
+trent<-spTransform(meteo.stations, crs.geo)
 summary(coms.coord)
 
 
@@ -71,7 +69,14 @@ lo spatial data frame ha uno slot dal quale e' possibile accedere ai dati delle 
 
 ```{r}
 head(regs@data)
-sard <- subset(regs, cod_reg==20)
+trent <- subset(regs, cod_reg==4)
+crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")  # geographical, datum WGS84
+trent <- spTransform(trent, crs.geo)
+ov<- sp::over( meteo.stations, trent)
+meteo.stations@data <- cbind(ov, meteo.stations@data)
+meteo.trent <- subset(meteo.stations, cod_reg==4)
+writeOGR(obj = meteo.trent, dsn = "meteo_trent.gjson", driver ="GeoJSON", layer='trent')
+# ov<- ov[,complete.cases(ov)]
 ```
 
 A partire da questo slot e' possibile quindi trattare i dati come se stessimo utilizzando un normale data frame e quindi produrre tutte le statistiche che vogliamo
