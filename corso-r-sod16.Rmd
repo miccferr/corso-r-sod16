@@ -1,11 +1,12 @@
 ---
 title: "Introduzione al trattamento e analisi dei geodati con R"
-author: "Andrea Zedda, Michele Ferretti"
+author: "Andrea Zedda, Michele Ferretti, Giacomo Gamba"
 date: "8 maggio 2016"
 output: html_document
 ---
 
 In  R ci sono diverse librerie che consentono il trattamento di geodati, uno dei piu' interessanti e' rgdal che ci permette di utilizzare le potenzialita' di gdal in R.
+
 ```{r}
 #install.packages('rgdal)
 library(rgdal)
@@ -15,10 +16,7 @@ library(rgdal)
 Per caricare i file si utilizza la funzione readOGR
 
 ```{r}
-  regs  <- readOGR("regioni", layer="Reg2015_WGS84_g")
-  provs <- readOGR("province", layer="CMProv2015_WGS84_g")
-  coms  <- readOGR("comuni", layer="Com2015_WGS84_g")
-
+  regs  <- readOGR("regioni", layer="regioni")
 ```
 
 Gli oggetti caricati diventano degli SpatialPolygonDataFrame, cioe' delle classi che ...
@@ -27,7 +25,7 @@ Gli oggetti caricati diventano degli SpatialPolygonDataFrame, cioe' delle classi
 Oltre a gli shapefile, e' possibile caricare anche altri formati geografici, ad esempio il geojson
 
 ```{r}
-
+piattaforme <- readOGR("piattaforme.geojson", layer = "OGRGeoJSON")
 
 ```
 
@@ -35,7 +33,6 @@ Visualizzare i spatialdataframe e' semplice utilizzando le fuznioni base di R
 
 ```{r}
 
-plot(coms)
 plot(regs)
 plot(provs, col='red')
 
@@ -48,24 +45,19 @@ Inoltre e' possibile ricavare uno spatialdataframe (spatialpointsdataframe) da u
 meteo.stations <- read.csv('stazioni.csv', stringsAsFactors = F)
 #trasformo il csv
 coordinates(meteo.stations) <- ~lon+lat
-plot(meteo.stations, pch=20, col='steelblue')
+crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")  # geographical, datum WGS84
+spTransform(meteo.stations, crs.geo) 
+plot(meteo.stations, add=T, pch=20, col='steelblue')
 
 
-benzinai <- read.csv('benzinai.csv', stringsAsFactors = F)
-benzinai$Latitudine<- as.numeric(benzinai$Latitudine)
-benzinai$Longitudine<- as.numeric(benzinai$Longitudine)
-benzinai <- benzinai[,c(1:10)]
-benzinai$Latitudine<- as.numeric(benzinai$Latitudine)
-benzinai$Longitudine<- as.numeric(benzinai$Longitudine)
-benzinai<- benzinai[complete.cases(benzinai),]
-#trasformo il csv
-coordinates(benzinai) <- ~Longitudine+Latitudine
-plot(meteo.stations, pch=20, col='steelblue')
+/pagebreak 
+
+meteo.stations2<- meteo.stations@data[complete.cases(meteo.stations@data),]
+
 
 #definisco la proiezione
 
 
-crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")  # geographical, datum WGS84
 proj4string(meteo.stations) <- crs.geo  # define projection system of our data
 proj4string(regs) <- crs.geo  # define projection system of our data
 
@@ -78,7 +70,8 @@ summary(coms.coord)
 lo spatial data frame ha uno slot dal quale e' possibile accedere ai dati delle eventuali variabili relative alle geometrie
 
 ```{r}
-head(coms@data)
+head(regs@data)
+sard <- subset(regs, cod_reg==20)
 ```
 
 A partire da questo slot e' possibile quindi trattare i dati come se stessimo utilizzando un normale data frame e quindi produrre tutte le statistiche che vogliamo
