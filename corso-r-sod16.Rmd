@@ -1,6 +1,6 @@
 ---
 title: "Introduzione al trattamento e analisi dei geodati con R"
-author: "Andrea Zedda, Michele Ferretti, Giacomo Gamba"
+author: "Giacomo Gamba , Michele Ferretti, Andrea Zedda "
 date: "8 maggio 2016"
 output: html_document
 ---
@@ -17,6 +17,7 @@ Per caricare i file si utilizza la funzione readOGR
 
 ```{r}
   regs  <- readOGR("data/regioni", layer="regioni")
+plot(regs)
 ```
 
 Gli oggetti caricati diventano degli SpatialPolygonDataFrame.
@@ -24,6 +25,7 @@ Oltre a gli shapefile, e' possibile caricare anche altri formati geografici, ad 
 
 ```{r}
 piattaforme <- readOGR("data/piattaforme.geojson", layer = "OGRGeoJSON")
+plot(piattaforme)
 
 ```
 
@@ -32,7 +34,7 @@ Visualizzare i spatialdataframe e' semplice utilizzando le fuznioni base di R
 ```{r}
 
 plot(regs)
-plot(provs, col='red')
+plot(piattaforme, col='red', pch=20, add=T)
 
 ```
 
@@ -41,86 +43,58 @@ Inoltre e' possibile ricavare uno *spatialdataframe* (spatialpointsdataframe) da
 ```{r}
 #apro il csv
 meteo.stations <- read.csv('data/stazioni.csv', stringsAsFactors = F)
-#trasformo il csv
+#trasformo il csv in uno spatialdataframe
 coordinates(meteo.stations) <- ~lon+lat
+#assegno il sistema di riferimento di coordinate
 crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")  # geographical, datum WGS84
-spTransform(meteo.stations, crs.geo) 
-plot(meteo.stations, add=T, pch=20, col='steelblue')
-
-
-
-
-meteo.stations2<- meteo.stations@data[complete.cases(meteo.stations@data),]
-
-
-#definisco la proiezione
-
-
 proj4string(meteo.stations) <- crs.geo  # define projection system of our data
-proj4string(regs) <- crs.geo  # define projection system of our data
-trent<-spTransform(meteo.stations, crs.geo)
-summary(coms.coord)
+meteo.stations<-spTransform(meteo.stations, crs.geo) 
+plot(meteo.stations, pch=20, col='steelblue')
+
+# proj4string(regs) <- crs.geo  # define projection system of our data
+# summary(coms.coord)
 
 
 ```
 
 
-lo spatial data frame ha uno slot dal quale e' possibile accedere ai dati delle eventuali variabili relative alle geometrie
+lo *spatialdataframe* ha uno slot dal quale e' possibile accedere ai dati delle eventuali variabili relative alle geometrie
 
 ```{r}
 head(regs@data)
+```
+
+e' possibile quindi trattare i dati come un semplice dataframe
+```{r}
 trent <- subset(regs, cod_reg==4)
-crs.geo <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")  # geographical, datum WGS84
+plot(trent)
+```
+
+dal subset possiamo fare operazioni di geoprocessing
+
+```{r}
 trent <- spTransform(trent, crs.geo)
 ov<- sp::over( meteo.stations, trent)
 meteo.stations@data <- cbind(ov, meteo.stations@data)
 meteo.trent <- subset(meteo.stations, cod_reg==4)
+plot(meteo.trent, col="red", pch=13)
+
+```
+
+possiamo anche scrivere il file risultante
+
+```{r}
 writeOGR(obj = meteo.trent, dsn = "meteo_trent.gjson", driver ="GeoJSON", layer='trent')
-# ov<- ov[,complete.cases(ov)]
-```
-
-A partire da questo slot e' possibile quindi trattare i dati come se stessimo utilizzando un normale data frame e quindi produrre tutte le statistiche che vogliamo
-
-```{r}
-  table(coms$COD_REG)
-```
-
-Sempre utilizzando lo slot @data e' possibile anche filtrare i dati
-
-```{r}
-coms.sard <- subset(coms, COD_REG==20) 
-plot(coms.sard,  add=T, col=colors(), lwd=0.1)
-
-```
-
-plot(regs)
-plot(coms.sard,  add=T, col=topo.colors(330), lwd=0.1)
-
-
-fare un merge tra data frame
-```{r}
-
-```
-
-fare un merge tra spdf e df
-```{r}
-
 ```
 
 
 
 
 
-scrivere un file
-```{r}
-writeOGR(ss4,"foo.geojson", layer="nomelayer",driver="GeoJSON",check_exists = FALSE)
 
-```
 
-per controllare in quali formati e' possibile salvare, e soprattutto cosa scrivere nell'opzione diriver
 
-```{r}
-ogrDrivers()
-```
+
+
 
 
