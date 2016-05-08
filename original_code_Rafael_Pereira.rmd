@@ -20,34 +20,32 @@ setwd("~/Sites/corso-r-sod16")
 
 # load data
 staz_meteo = readOGR("data/meteo_trent.geojson", "OGRGeoJSON")
+# correct data
+staz_meteo@data$elev <- as.numeric(as.character(staz_meteo@data$elev))
+staz_meteo@data$elev[1] <- 1370
+# visual check
 plot(staz_meteo)
-# 
-# # plot Census Tract map
-#   plot(oregon.tract)
 ```
 
 ## 0th Step: create IDW interpolator
 
 ``` {r IDW}
-
+# grid extension
 x.range <- as.numeric(range(staz_meteo@coords[,1]))  # min/max longitude of the interpolation area
 y.range <- as.numeric(range(staz_meteo@coords[,2]))  # min/max latitude of the interpolation area
-
-
+# create grid
 grd <- expand.grid(x = seq(from = x.range[1], to = x.range[2], by = 0.01), y = seq(from = y.range[1], to = y.range[2], by = 0.01))  # expand points to grid
-## convert grid to SpatialPixel class
+# convert grid to SpatialPixel class
 coordinates(grd) <- ~ x+y
 gridded(grd) <- TRUE
-
+# visual check grid
 plot(grd, cex = 1.5, col = "grey")
 points(staz_meteo, pch = 1, col = "red", cex = 1)
-
+# fix CRSs
 proj4string(grd) <- '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'
 spTransform(staz_meteo, CRS='+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
-  
-
-idw <- idw(formula = as.numeric(end) ~ 1, locations = staz_meteo, newdata = grd)  # apply idw model for the data
-
+# interpolate! 
+idw <- idw(formula = as.numeric(elev) ~ 1, locations = staz_meteo, newdata = grd)  # apply idw model for the data
 
 idw.output = as.data.frame(idw)  # output is defined as a data table
 names(idw.output)[1:3] <- c("long", "lat", "var1.pred")  # give names to the modelled variables
@@ -59,28 +57,6 @@ ggplot() + geom_tile(data = idw.output, aes(x = long, y = lat, fill = var1.pred)
 
 
 
-
-
-x.range <- as.numeric(c(21.76, 28.21))  # min/max longitude of the interpolation area
-y.range <- as.numeric(c(57.45, 59.72))  # min/max latitude of the interpolation area
-Create a data frame from all combinations of the supplied vectors or factors. See the description of the return value for precise details of the way this is done. Set spatial coordinates to create a Spatial object. Assign gridded structure:
-
-
-
-
-idw0(formula, data, newdata, y, idp = 2.0)
-idw(z~1, staz_meteo)
-
-
-# merdate:
-staz_meteo_data = as.data.frame(staz_meteo)
-staz_meteo_data <- staz_meteo_data[, c(19,20,1:18)]
-
-colnames(staz_meteo_data)  <- c('x','y', colnames(staz_meteo_data)[3:20])
-
-staz_meteo_ppp = as.ppp(staz_meteo_data, c(0,1,0,1), fatal=TRUE)
-
-IDW = idw(X, power=2, at="pixels", ...)
 ```
 
 

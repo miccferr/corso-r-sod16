@@ -1,10 +1,20 @@
-# corso-r-sod16
-R e dati geospaziali a SOD 2016
+# Corso R SOD16
+R e dati geospaziali a SOD 2016!
 
+## Pre-requisiti "software" :
+Installare:
+- Il linguaggio [R](https://www.r-project.org/)
+- Un IDE (ambiente integrato di sviluppo)[RStudio](https://www.rstudio.com/)
+
+## Tutorial "Geo"
+Guardiamo l'esempio di [Rafa Pereira](https://gist.github.com/rafapereirabr/97a7c92d40f91cd20a10e8e0165a0aef)
+Se non usate Git, per scaricare il file basta cliccare sul bottone "download ZIP" in alto a dx.
 
 ## References:
 
-ctrl+c/ctr+v dalla prima pagina di risultati dopo aver googlato "R geospatial"
+Vari tutorial e risorse.
+
+(ctrl+c/ctr+v dalla prima pagina di risultati dopo aver googlato "R geospatial")
 
 - [rblog](http://www.r-bloggers.com/using-r-working-with-geospatial-data/)
 - [http://spatial.ly/r/](http://spatial.ly/r/)
